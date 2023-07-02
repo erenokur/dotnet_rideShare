@@ -21,7 +21,7 @@ public class RouteHelper
 
         if (departureCity == null || destinationCity == null)
         {
-            return Enumerable.Empty<CityNode>().ToList();
+            return Enumerable.Empty<int>().ToList();
         }
 
         // Initialize distances
