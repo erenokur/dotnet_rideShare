@@ -6,6 +6,8 @@ using dotnet_rideShare.DTOs;
 using dotnet_rideShare.Enumerators;
 using Microsoft.EntityFrameworkCore;
 using dotnet_rideShare.Models;
+using dotnet_rideShare.Helpers;
+using dotnet_rideShare.Interfaces;
 
 public class TravelSearchService
 {
@@ -35,12 +37,22 @@ public class TravelSearchService
         {
             return Enumerable.Empty<TravelPlans>();
         }
+
+        var cityNodes = _dbContext.Cities.Select(city => new CityNode
+        {
+            Id = city.Id,
+            XCoordinate = city.XCoordinate,
+            YCoordinate = city.YCoordinate
+        }).ToList();
+
+        var routeFinder = new RouteHelper(cityNodes);
+        var citiesInBetween = routeFinder.FindBestRoute(departureCity.Id, destinationCity.Id);
         // Get all city IDs that are in between the departure city and destination city
-        var citiesInBetween = await _dbContext.Cities
-            .Where(x => x.XCoordinate > departureCity.XCoordinate && x.XCoordinate < destinationCity.XCoordinate &&
-                        x.YCoordinate > departureCity.YCoordinate && x.YCoordinate < destinationCity.YCoordinate)
-            .Select(x => x.Id)
-            .ToListAsync();
+        // var citiesInBetween = await _dbContext.Cities
+        //     .Where(x => x.XCoordinate > departureCity.XCoordinate && x.XCoordinate < destinationCity.XCoordinate &&
+        //                 x.YCoordinate > departureCity.YCoordinate && x.YCoordinate < destinationCity.YCoordinate)
+        //     .Select(x => x.Id)
+        //     .ToListAsync();
 
         // Get all travel plans that are in between the departure city and destination city
         var travelPlans = await _dbContext.TravelPlans
